@@ -1,0 +1,3 @@
+/home/lzh/Desktop/SocketImage/SocketImageSender/CMakeFiles/edit_cache.dir
+/home/lzh/Desktop/SocketImage/SocketImageSender/CMakeFiles/rebuild_cache.dir
+/home/lzh/Desktop/SocketImage/SocketImageSender/CMakeFiles/SocketImageSender.dir
