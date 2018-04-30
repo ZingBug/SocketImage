@@ -89,7 +89,7 @@ void producerTask()//生产者任务
 			break;
 		}
 		produceImage(&imageRespository, image);
-		Sleep(30);
+		Sleep(10);
 		//break;
 	}
 }

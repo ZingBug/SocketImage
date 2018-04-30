@@ -8,6 +8,8 @@
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include <time.h> 
+#include <windows.h>  
 #pragma comment(lib,"ws2_32.lib")
 
 #define RECVBUFSIZE 1000
@@ -129,37 +131,56 @@ void openSocket(int port)
 
 	int len = sizeof(SOCKADDR);
 	sClient = accept(sListen, (SOCKADDR *)&client, &len);
+
+	std::cout << "socket success" << std::endl;
 }
 
 Mat receiveImage()
 {
 	Mat img_decode;
+	//double start = GetTickCount();
 	if (recv(sClient, recvBuf, 16, 0) != INVALID_SOCKET)
 	{
 		for (int i = 0; i < 16; i++)
 		{
 			if (recvBuf[i]<'0' || recvBuf[i]>'9') recvBuf[i] = ' ';
 		}
-		data.resize(atoi(recvBuf));
-		//std::cout << atoi(recvBuf) << std::endl;
-		int len = atoi(recvBuf) / RECVBUFSIZE + 1;
+		int recvLen = atoi(recvBuf);
+		data.resize(recvLen);
+		//std::cout << recvLen << std::endl;
+		int len = recvLen / RECVBUFSIZE + 1;
+		//std::cout << "len: " << len << std::endl;
 		int recved = 0;
 		int tempRecv = 0;
-
+		int n = 0;
+		int m = 0;
 		for (int i = 0; i < len - 1; i++)
 		{
+			n++;
 			tempRecv = recv(sClient, recvBuf_1, RECVBUFSIZE, 0);
 			if (tempRecv == SOCKET_ERROR)
 			{
 				throw "Socket is abnormal!";
 			}
+			if (tempRecv < 1000)
+			{
+				m++;
+			}
+			Sleep(1);
+			//std::cout << tempRecv << std::endl;
+			//std::cout << n << std::endl;
+			//std::cout << n << " : " << tempRecv << std::endl;
 			memcpy(&data[recved], recvBuf_1, tempRecv * sizeof(uchar));
 			recved += tempRecv;
 		}
+		//double end = GetTickCount();
+		//double cost = end - start;
+		//std::cout << "时间: " << cost << std::endl;
 		//最后一次接收
-		if (recved < atoi(recvBuf))
+		if (recved < recvLen)
 		{
-			tempRecv = recv(sClient, recvBuf_1, (atoi(recvBuf) - recved + 1), 0);
+			//std::cout << "最后一次: " << n << " : " << m << " " << recved << std::endl;
+			tempRecv = recv(sClient, recvBuf_1, (atoi(recvBuf) - recved), 0);
 			if (tempRecv == SOCKET_ERROR)
 			{
 				throw "Socket is abnormal!";
@@ -167,7 +188,7 @@ Mat receiveImage()
 			memcpy(&data[recved], recvBuf_1, tempRecv * sizeof(uchar));
 			recved += tempRecv;
 		}
-
+		
 		std::cout << atoi(recvBuf) << "->" << recved << std::endl;
 
 		if (data.size() == 0)
