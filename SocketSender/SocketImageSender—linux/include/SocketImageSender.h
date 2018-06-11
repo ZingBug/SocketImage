@@ -21,8 +21,8 @@
 #include <unistd.h>
 #include <sys/select.h> 
 
-#define IMAGE_REPOSITORY_SIZE 100
-#define SENDBUFSIZE 1000
+#define IMAGE_REPOSITORY_SIZE 5
+#define SENDBUFSIZE 3000
 
 using namespace cv;
 
@@ -33,7 +33,7 @@ struct ImageRespository {
 	std::mutex mtx;//互斥锁，保护图像缓冲区
 	std::condition_variable repo_not_full;//条件变量，指示图像缓冲区不为满
 	std::condition_variable repo_not_empty;//条件变量，指示图像缓冲区不为空
-};//图像库全局变量, 生产者和消费者操作该变量.
+};
 
 class SocketImageSender
 {
@@ -50,6 +50,7 @@ private:
 	void closeSocket();
 	void sendImage(Mat image);
 	void consumerTask();//消费者任务
+	//static void * SocketImageSender::consumerTask(void *arg);
 
 	ImageRespository imageRespository;
 	int sClinet;

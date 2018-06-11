@@ -15,8 +15,9 @@
 #include <windows.h>  
 #pragma comment(lib,"ws2_32.lib")
 
-#define IMAGE_REPOSITORY_SIZE 100
-#define RECVBUFSIZE 1000
+#define IMAGE_REPOSITORY_SIZE 5
+#define ONCE_RCV_LEN 3000
+#define BUFSIZE 1024*1024
 
 using namespace cv;
 
@@ -28,8 +29,6 @@ struct ImageRespository {
 	std::condition_variable repo_not_full;//条件变量，指示图像缓冲区不为满
 	std::condition_variable repo_not_empty;//条件变量，指示图像缓冲区不为空
 };
-
-
 
 class SocketImageReceiver
 {
@@ -56,7 +55,7 @@ private:
 	SOCKADDR_IN client;
 	/*接受图像相关定义*/
 	char recvBuf[16];
-	char recvBuf_1[RECVBUFSIZE];
+	char recvBuf_1[ONCE_RCV_LEN];
 	std::vector<uchar> data;
 };
 

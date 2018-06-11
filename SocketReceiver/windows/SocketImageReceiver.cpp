@@ -4,6 +4,7 @@ SocketImageReceiver::SocketImageReceiver()
 {
 	imageRespository.read_position = 0;//初始化图像读取位置
 	imageRespository.write_position = 0;//初始化图像写入位置
+
 }
 
 SocketImageReceiver::~SocketImageReceiver()
@@ -40,7 +41,6 @@ Mat SocketImageReceiver::receiveImage()
 {
 	Mat img_decode;
 	
-	
 	if (recv(sClient, recvBuf, 16, 0) != INVALID_SOCKET)
 	{
 		
@@ -49,36 +49,30 @@ Mat SocketImageReceiver::receiveImage()
 			if (recvBuf[i]<'0' || recvBuf[i]>'9') recvBuf[i] = ' ';
 		}
 		int recvLen = atoi(recvBuf);
+		data.clear();
 		data.resize(recvLen);
 
-		int len = recvLen / RECVBUFSIZE + 1;
 		int recved = 0;
 		int tempRecv = 0;
 		int n = 0;
-		int m = 0;
-		for (int i = 0; i < len - 1; i++)
+		while (recvLen - recved > ONCE_RCV_LEN)
 		{
-			n++;
-			tempRecv = recv(sClient, recvBuf_1, RECVBUFSIZE, 0);
+			tempRecv = recv(sClient, recvBuf_1, ONCE_RCV_LEN, 0);
 			if (tempRecv == SOCKET_ERROR)
 			{
 				throw "Socket is abnormal!";
 			}
-			if (tempRecv < 1000)
-			{
-				m++;
-			}
-			Sleep(1);
-			
+			//Sleep(1);
+
 			memcpy(&data[recved], recvBuf_1, tempRecv * sizeof(uchar));
 			recved += tempRecv;
 		}
 	
-		//最后一次接收
-		if (recved < recvLen)
+		//最后的接收
+		while (recved < recvLen)
 		{
 			
-			tempRecv = recv(sClient, recvBuf_1, (atoi(recvBuf) - recved), 0);
+			tempRecv = recv(sClient, recvBuf_1, recvLen - recved, 0);
 			if (tempRecv == SOCKET_ERROR)
 			{
 				throw "Socket is abnormal!";
@@ -87,7 +81,12 @@ Mat SocketImageReceiver::receiveImage()
 			recved += tempRecv;
 		}
 
-		std::cout << atoi(recvBuf) << "->" << recved << std::endl;
+		std::cout << recvLen << "->" << recved << std::endl;
+
+		if (recvLen != recved)
+		{
+			throw "接收图像不完整";
+		}
 
 		if (data.size() == 0)
 		{
@@ -106,6 +105,7 @@ Mat SocketImageReceiver::receiveImage()
 	}
 }
 
+
 void SocketImageReceiver::producerTask()
 {
 	Mat image;
@@ -118,7 +118,6 @@ void SocketImageReceiver::producerTask()
 		catch (const char* msg)
 		{
 			std::cout << msg << std::endl;
-			break;
 		}
 		produceImage(&imageRespository, image);
 	}

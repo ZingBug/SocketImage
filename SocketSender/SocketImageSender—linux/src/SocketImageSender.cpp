@@ -144,7 +144,7 @@ void SocketImageSender::consumerTask()
 {
 	while (true)
 	{
-		threadDelay(0,50);
+		//threadDelay(0,50);
 		//sleep(1);
 		Mat image = consumeImage(&imageRespository);
 		try
@@ -162,12 +162,16 @@ void SocketImageSender::consumerTask()
 void SocketImageSender::putImage(Mat image)
 {
 	produceImage(&imageRespository, image);
-	threadDelay(0,50);
+	//threadDelay(0,50);
 }
 
 void SocketImageSender::start(std::string server_address,int port)
 {
 	openSocket(server_address,port);
 	std::thread consumer(&SocketImageSender::consumerTask,this);
+	//consumer.detach();
+	//pthread_t p;
+	//pthread_create(&p,NULL,SocketImageSender::consumerTask,(void *)this);
 	consumer.join();
+	//consumerTask();
 }

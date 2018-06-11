@@ -2,7 +2,9 @@
 
 void readImage(SocketImageSender *s)
 {
-	VideoCapture capture("1.mp4");
+	std::string path="//home//lzh//Desktop//SocketImage//SocketImageSender//1.mp4";
+	VideoCapture capture(3);
+	std::cout<<"video start"<<std::endl;
 	Mat image;
 	while (true)
 	{
@@ -19,12 +21,14 @@ void readImage(SocketImageSender *s)
 
 int main(int argc,char** argv)
 {
-	std::string server_address="192.168.2.238";
+	std::string server_address="10.193.1.62";
 	int port=5150;
 
 	SocketImageSender s;
 	std::thread read(readImage,&s);
 	s.start(server_address,port);
+
+	std::cout<<"test"<<std::endl;
 
 	return 0;
 }
